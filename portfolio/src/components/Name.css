@@ -1,0 +1,17 @@
+.hero {
+  height: 35vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(255, 255, 255);
+  top: 25vh;
+  position: relative;
+}
+
+.name {
+  font-family: monospace;
+  font: bold;
+  font-size: 165px;
+  color: rgb(255, 255, 255);
+  gap: 10px;
+}

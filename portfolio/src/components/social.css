@@ -1,0 +1,20 @@
+.social-box {
+  background-color: black;
+  border-radius: 30px;
+  width: 85px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 35px;
+  flex-direction: column;
+  position: relative;
+  bottom: 10vh;
+  border: 3px white solid;
+}
+
+.social-box a {
+  font-size: 70px;
+  color: rgba(255, 255, 255);
+  top: 35px;
+}
