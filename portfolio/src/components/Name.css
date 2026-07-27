@@ -9,9 +9,7 @@
 }
 
 .name {
-  font-family: monospace;
-  font: bold;
-  font-size: 165px;
-  color: rgb(255, 255, 255);
-  gap: 10px;
+  font-size: 5rem;
+  font-family: "Geist Mono", monospace;
+  font-weight: 700;
 }
