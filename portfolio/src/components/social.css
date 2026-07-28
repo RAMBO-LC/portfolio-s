@@ -9,12 +9,12 @@
   gap: 35px;
   flex-direction: column;
   position: relative;
-  bottom: 10vh;
+  bottom: -25vh;
   border: 3px white solid;
 }
 
 .social-box a {
   font-size: 70px;
   color: rgba(255, 255, 255);
-  top: 35px;
+  top: 5px;
 }

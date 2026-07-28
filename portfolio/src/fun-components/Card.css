@@ -1,6 +1,6 @@
 .lanyard-wrapper {
-  position: absolute;
-  top: -241px;
+  position: relative;
+  top: -2200px;
   left: 650px;
   z-index: 0;
   width: 100%;

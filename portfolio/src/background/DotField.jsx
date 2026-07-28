@@ -1,304 +1,277 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
 
 import "./DotField.css";
 
-const TWO_PI = Math.PI * 2;
+const vertexShader = `
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
 
-const DotField = memo(
-  ({
-    dotRadius = 2.5,
-    dotSpacing = 14,
-    cursorRadius = 500,
-    cursorForce = 0.1,
-    bulgeOnly = true,
-    bulgeStrength = 67,
-    glowRadius = 160,
-    sparkle = false,
-    waveAmplitude = 0,
-    gradientFrom = "rgba(168, 85, 247, 0.35)",
-    gradientTo = "rgba(180, 151, 207, 0.25)",
-    glowColor = "#120F17",
-    ...rest
-  }) => {
-    const canvasRef = useRef(null);
-    const svgRef = useRef(null);
-    const glowRef = useRef(null);
-    const dotsRef = useRef([]);
-    const mouseRef = useRef({
-      x: -9999,
-      y: -9999,
-      prevX: -9999,
-      prevY: -9999,
-      speed: 0,
-    });
-    const rafRef = useRef(null);
-    const sizeRef = useRef({ w: 0, h: 0, offsetX: 0, offsetY: 0 });
-    const glowOpacity = useRef(0);
-    const engagement = useRef(0);
-    const propsRef = useRef({});
-    propsRef.current = {
-      dotRadius,
-      dotSpacing,
-      cursorRadius,
-      cursorForce,
-      bulgeOnly,
-      bulgeStrength,
-      sparkle,
-      waveAmplitude,
-      gradientFrom,
-      gradientTo,
+const fragmentShader = `
+precision highp float;
+
+uniform float uTime, uAttenuation, uLineThickness;
+uniform float uBaseRadius, uRadiusStep, uScaleRate;
+uniform float uOpacity, uNoiseAmount, uRotation, uRingGap;
+uniform float uFadeIn, uFadeOut;
+uniform float uMouseInfluence, uHoverAmount, uHoverScale, uParallax, uBurst;
+uniform vec2 uResolution, uMouse;
+uniform vec3 uColor, uColorTwo;
+uniform int uRingCount;
+
+const float HP = 1.5707963;
+const float CYCLE = 3.45;
+
+float fade(float t) {
+  return t < uFadeIn ? smoothstep(0.0, uFadeIn, t) : 1.0 - smoothstep(uFadeOut, CYCLE - 0.2, t);
+}
+
+float ring(vec2 p, float ri, float cut, float t0, float px) {
+  float t = mod(uTime + t0, CYCLE);
+  float r = ri + t / CYCLE * uScaleRate;
+  float d = abs(length(p) - r);
+  float a = atan(abs(p.y), abs(p.x)) / HP;
+  float th = max(1.0 - a, 0.5) * px * uLineThickness;
+  float h = (1.0 - smoothstep(th, th * 1.5, d)) + 1.0;
+  d += pow(cut * a, 3.0) * r;
+  return h * exp(-uAttenuation * d) * fade(t);
+}
+
+void main() {
+  float px = 1.0 / min(uResolution.x, uResolution.y);
+  vec2 p = (gl_FragCoord.xy - 0.5 * uResolution.xy) * px;
+  float cr = cos(uRotation), sr = sin(uRotation);
+  p = mat2(cr, -sr, sr, cr) * p;
+  p -= uMouse * uMouseInfluence;
+  float sc = mix(1.0, uHoverScale, uHoverAmount) + uBurst * 0.3;
+  p /= sc;
+  vec3 c = vec3(0.0);
+  float rcf = max(float(uRingCount) - 1.0, 1.0);
+  for (int i = 0; i < 10; i++) {
+    if (i >= uRingCount) break;
+    float fi = float(i);
+    vec2 pr = p - fi * uParallax * uMouse;
+    vec3 rc = mix(uColor, uColorTwo, fi / rcf);
+    c = mix(c, rc, vec3(ring(pr, uBaseRadius + fi * uRadiusStep, pow(uRingGap, fi), i == 0 ? 0.0 : 2.95 * fi, px)));
+  }
+  c *= 1.0 + uBurst * 2.0;
+  float n = fract(sin(dot(gl_FragCoord.xy + uTime * 100.0, vec2(12.9898, 78.233))) * 43758.5453);
+  c += (n - 0.5) * uNoiseAmount;
+  gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)) * uOpacity);
+}
+`;
+
+export default function DotField({
+  color = "#e9e7eb",
+  colorTwo = "#797676",
+  speed = 1,
+  ringCount = 6,
+  attenuation = 10,
+  lineThickness = 2,
+  baseRadius = 0.35,
+  radiusStep = 0.1,
+  scaleRate = 0.1,
+  opacity = 1,
+  blur = 0,
+  noiseAmount = 0.1,
+  rotation = 0,
+  ringGap = 1.5,
+  fadeIn = 0.7,
+  fadeOut = 0.5,
+  followMouse = false,
+  mouseInfluence = 0.2,
+  hoverScale = 1.2,
+  parallax = 0.05,
+  clickBurst = false,
+}) {
+  const mountRef = useRef(null);
+  const propsRef = useRef(null);
+  const mouseRef = useRef([0, 0]);
+  const smoothMouseRef = useRef([0, 0]);
+  const hoverAmountRef = useRef(0);
+  const isHoveredRef = useRef(false);
+  const burstRef = useRef(0);
+
+  propsRef.current = {
+    color,
+    colorTwo,
+    speed,
+    ringCount,
+    attenuation,
+    lineThickness,
+    baseRadius,
+    radiusStep,
+    scaleRate,
+    opacity,
+    noiseAmount,
+    rotation,
+    ringGap,
+    fadeIn,
+    fadeOut,
+    followMouse,
+    mouseInfluence,
+    hoverScale,
+    parallax,
+    clickBurst,
+  };
+
+  useEffect(() => {
+    const mount = mountRef.current;
+    if (!mount) return;
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true });
+    } catch {
+      return;
+    }
+
+    if (!renderer.capabilities.isWebGL2) {
+      renderer.dispose();
+      return;
+    }
+
+    renderer.setClearColor(0x000000, 0);
+    mount.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
+    camera.position.z = 1;
+
+    const uniforms = {
+      uTime: { value: 0 },
+      uAttenuation: { value: 0 },
+      uResolution: { value: new THREE.Vector2() },
+      uColor: { value: new THREE.Color() },
+      uColorTwo: { value: new THREE.Color() },
+      uLineThickness: { value: 0 },
+      uBaseRadius: { value: 0 },
+      uRadiusStep: { value: 0 },
+      uScaleRate: { value: 0 },
+      uRingCount: { value: 0 },
+      uOpacity: { value: 1 },
+      uNoiseAmount: { value: 0 },
+      uRotation: { value: 0 },
+      uRingGap: { value: 1.6 },
+      uFadeIn: { value: 0.5 },
+      uFadeOut: { value: 0.75 },
+      uMouse: { value: new THREE.Vector2() },
+      uMouseInfluence: { value: 0 },
+      uHoverAmount: { value: 0 },
+      uHoverScale: { value: 1 },
+      uParallax: { value: 0 },
+      uBurst: { value: 0 },
     };
-    const rebuildRef = useRef(null);
-    const glowIdRef = useRef(
-      `dot-field-glow-${Math.random().toString(36).slice(2, 9)}`,
-    );
 
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      const glowEl = glowRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d", { alpha: true });
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      let resizeTimer;
+    const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms,
+      transparent: true,
+    });
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+    scene.add(quad);
 
-      function resize() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(doResize, 100);
-      }
+    const resize = () => {
+      const w = mount.clientWidth;
+      const h = mount.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(dpr);
+      uniforms.uResolution.value.set(w * dpr, h * dpr);
+    };
+    resize();
+    window.addEventListener("resize", resize);
 
-      function doResize() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const w = rect.width;
-        const h = rect.height;
+    const ro = new ResizeObserver(resize);
+    ro.observe(mount);
 
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        canvas.style.width = `${w}px`;
-        canvas.style.height = `${h}px`;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const onMouseMove = (e) => {
+      const rect = mount.getBoundingClientRect();
+      mouseRef.current[0] = (e.clientX - rect.left) / rect.width - 0.5;
+      mouseRef.current[1] = -((e.clientY - rect.top) / rect.height - 0.5);
+    };
+    const onMouseEnter = () => {
+      isHoveredRef.current = true;
+    };
+    const onMouseLeave = () => {
+      isHoveredRef.current = false;
+      mouseRef.current[0] = 0;
+      mouseRef.current[1] = 0;
+    };
+    const onClick = () => {
+      burstRef.current = 1;
+    };
 
-        sizeRef.current = {
-          w,
-          h,
-          offsetX: rect.left + window.scrollX,
-          offsetY: rect.top + window.scrollY,
-        };
+    mount.addEventListener("mousemove", onMouseMove);
+    mount.addEventListener("mouseenter", onMouseEnter);
+    mount.addEventListener("mouseleave", onMouseLeave);
+    mount.addEventListener("click", onClick);
 
-        buildDots(w, h);
-      }
+    let frameId;
+    const animate = (t) => {
+      frameId = requestAnimationFrame(animate);
+      const p = propsRef.current;
 
-      function buildDots(w, h) {
-        const p = propsRef.current;
-        const step = p.dotRadius + p.dotSpacing;
-        const cols = Math.floor(w / step);
-        const rows = Math.floor(h / step);
-        const padX = (w % step) / 2;
-        const padY = (h % step) / 2;
-        const dots = new Array(rows * cols);
-        let idx = 0;
+      smoothMouseRef.current[0] +=
+        (mouseRef.current[0] - smoothMouseRef.current[0]) * 0.08;
+      smoothMouseRef.current[1] +=
+        (mouseRef.current[1] - smoothMouseRef.current[1]) * 0.08;
+      hoverAmountRef.current +=
+        ((isHoveredRef.current ? 1 : 0) - hoverAmountRef.current) * 0.08;
+      burstRef.current *= 0.95;
+      if (burstRef.current < 0.001) burstRef.current = 0;
 
-        for (let row = 0; row < rows; row++) {
-          for (let col = 0; col < cols; col++) {
-            const ax = padX + col * step + step / 2;
-            const ay = padY + row * step + step / 2;
-            dots[idx++] = {
-              ax,
-              ay,
-              sx: ax,
-              sy: ay,
-              vx: 0,
-              vy: 0,
-              x: ax,
-              y: ay,
-            };
-          }
-        }
-        dotsRef.current = dots;
-      }
+      uniforms.uTime.value = t * 0.001 * p.speed;
+      uniforms.uAttenuation.value = p.attenuation;
+      uniforms.uColor.value.set(p.color);
+      uniforms.uColorTwo.value.set(p.colorTwo);
+      uniforms.uLineThickness.value = p.lineThickness;
+      uniforms.uBaseRadius.value = p.baseRadius;
+      uniforms.uRadiusStep.value = p.radiusStep;
+      uniforms.uScaleRate.value = p.scaleRate;
+      uniforms.uRingCount.value = p.ringCount;
+      uniforms.uOpacity.value = p.opacity;
+      uniforms.uNoiseAmount.value = p.noiseAmount;
+      uniforms.uRotation.value = (p.rotation * Math.PI) / 180;
+      uniforms.uRingGap.value = p.ringGap;
+      uniforms.uFadeIn.value = p.fadeIn;
+      uniforms.uFadeOut.value = p.fadeOut;
+      uniforms.uMouse.value.set(
+        smoothMouseRef.current[0],
+        smoothMouseRef.current[1],
+      );
+      uniforms.uMouseInfluence.value = p.followMouse ? p.mouseInfluence : 0;
+      uniforms.uHoverAmount.value = hoverAmountRef.current;
+      uniforms.uHoverScale.value = p.hoverScale;
+      uniforms.uParallax.value = p.parallax;
+      uniforms.uBurst.value = p.clickBurst ? burstRef.current : 0;
 
-      function onMouseMove(e) {
-        const s = sizeRef.current;
-        mouseRef.current.x = e.pageX - s.offsetX;
-        mouseRef.current.y = e.pageY - s.offsetY;
-      }
+      renderer.render(scene, camera);
+    };
+    frameId = requestAnimationFrame(animate);
 
-      function updateMouseSpeed() {
-        const m = mouseRef.current;
-        const dx = m.prevX - m.x;
-        const dy = m.prevY - m.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        m.speed += (dist - m.speed) * 0.5;
-        if (m.speed < 0.001) m.speed = 0;
-        m.prevX = m.x;
-        m.prevY = m.y;
-      }
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", resize);
+      ro.disconnect();
+      mount.removeEventListener("mousemove", onMouseMove);
+      mount.removeEventListener("mouseenter", onMouseEnter);
+      mount.removeEventListener("mouseleave", onMouseLeave);
+      mount.removeEventListener("click", onClick);
+      mount.removeChild(renderer.domElement);
+      renderer.dispose();
+      material.dispose();
+    };
+  }, []);
 
-      const speedInterval = setInterval(updateMouseSpeed, 20);
-
-      let frameCount = 0;
-
-      function tick() {
-        frameCount++;
-        const dots = dotsRef.current;
-        const m = mouseRef.current;
-        const { w, h } = sizeRef.current;
-        const p = propsRef.current;
-        const len = dots.length;
-        const t = frameCount * 0.02;
-
-        const targetEngagement = Math.min(m.speed / 5, 1);
-        engagement.current += (targetEngagement - engagement.current) * 0.06;
-        if (engagement.current < 0.001) engagement.current = 0;
-        const eng = engagement.current;
-
-        glowOpacity.current += (eng - glowOpacity.current) * 0.08;
-
-        if (glowEl) {
-          glowEl.setAttribute("cx", m.x);
-          glowEl.setAttribute("cy", m.y);
-          glowEl.style.opacity = glowOpacity.current;
-        }
-
-        ctx.clearRect(0, 0, w, h);
-
-        const grad = ctx.createLinearGradient(0, 0, w, h);
-        grad.addColorStop(0, p.gradientFrom);
-        grad.addColorStop(1, p.gradientTo);
-        ctx.fillStyle = grad;
-
-        const cr = p.cursorRadius;
-        const crSq = cr * cr;
-        const rad = p.dotRadius / 2;
-        const isBulge = p.bulgeOnly;
-
-        ctx.beginPath();
-
-        for (let i = 0; i < len; i++) {
-          const d = dots[i];
-          const dx = m.x - d.ax;
-          const dy = m.y - d.ay;
-          const distSq = dx * dx + dy * dy;
-
-          if (distSq < crSq && eng > 0.01) {
-            const dist = Math.sqrt(distSq);
-            if (isBulge) {
-              const t = 1 - dist / cr;
-              const push = t * t * p.bulgeStrength * eng;
-              const angle = Math.atan2(dy, dx);
-              d.sx += (d.ax - Math.cos(angle) * push - d.sx) * 0.15;
-              d.sy += (d.ay - Math.sin(angle) * push - d.sy) * 0.15;
-            } else {
-              const angle = Math.atan2(dy, dx);
-              const move = (500 / dist) * (m.speed * p.cursorForce);
-              d.vx += Math.cos(angle) * -move;
-              d.vy += Math.sin(angle) * -move;
-            }
-          } else if (isBulge) {
-            d.sx += (d.ax - d.sx) * 0.1;
-            d.sy += (d.ay - d.sy) * 0.1;
-          }
-
-          if (!isBulge) {
-            d.vx *= 0.9;
-            d.vy *= 0.9;
-            d.x = d.ax + d.vx;
-            d.y = d.ay + d.vy;
-            d.sx += (d.x - d.sx) * 0.1;
-            d.sy += (d.y - d.sy) * 0.1;
-          }
-
-          let drawX = d.sx;
-          let drawY = d.sy;
-          if (p.waveAmplitude > 0) {
-            drawY += Math.sin(d.ax * 0.03 + t) * p.waveAmplitude;
-            drawX += Math.cos(d.ay * 0.03 + t * 0.7) * p.waveAmplitude * 0.5;
-          }
-
-          if (p.sparkle) {
-            const hash = ((i * 2654435761) ^ (frameCount >> 3)) >>> 0;
-            if (hash % 100 < 3) {
-              ctx.moveTo(drawX + rad * 1.8, drawY);
-              ctx.arc(drawX, drawY, rad * 1.8, 0, TWO_PI);
-            } else {
-              ctx.moveTo(drawX + rad, drawY);
-              ctx.arc(drawX, drawY, rad, 0, TWO_PI);
-            }
-          } else {
-            ctx.moveTo(drawX + rad, drawY);
-            ctx.arc(drawX, drawY, rad, 0, TWO_PI);
-          }
-        }
-
-        ctx.fill();
-
-        rafRef.current = requestAnimationFrame(tick);
-      }
-
-      doResize();
-      window.addEventListener("resize", resize);
-      window.addEventListener("mousemove", onMouseMove, { passive: true });
-      rafRef.current = requestAnimationFrame(tick);
-
-      rebuildRef.current = () => {
-        const { w, h } = sizeRef.current;
-        if (w > 0 && h > 0) buildDots(w, h);
-      };
-
-      return () => {
-        cancelAnimationFrame(rafRef.current);
-        clearInterval(speedInterval);
-        clearTimeout(resizeTimer);
-        window.removeEventListener("resize", resize);
-        window.removeEventListener("mousemove", onMouseMove);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-      rebuildRef.current?.();
-    }, [dotRadius, dotSpacing]);
-
-    return (
-      <div className="dot-field-container" {...rest}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-          }}
-        />
-        <svg
-          ref={svgRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-          }}
-        >
-          <defs>
-            <radialGradient id={glowIdRef.current}>
-              <stop offset="0%" stopColor={glowColor} />
-              <stop offset="100%" stopColor="transparent" />
-            </radialGradient>
-          </defs>
-          <circle
-            ref={glowRef}
-            cx="-9999"
-            cy="-9999"
-            r={glowRadius}
-            fill={`url(#${glowIdRef.current})`}
-            style={{ opacity: 0, willChange: "opacity" }}
-          />
-        </svg>
-      </div>
-    );
-  },
-);
-
-DotField.displayName = "DotField";
-
-export default DotField;
+  return (
+    <div
+      ref={mountRef}
+      className="magic-rings-container"
+      style={blur > 0 ? { filter: `blur(${blur}px)` } : undefined}
+    />
+  );
+}
