@@ -1,5 +1,9 @@
 .social-box {
-  background-color: black;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   border-radius: 30px;
   width: 85px;
   height: 500px;
@@ -10,16 +14,19 @@
   flex-direction: column;
   position: relative;
   bottom: -25vh;
-  border: 1px white thin;
   z-index: 10;
 }
 
 .social-box a {
   font-size: 70px;
-  color: rgba(255, 255, 255);
+  color: rgba(255, 255, 255, 0.85);
   top: 5px;
   transform-origin: center;
-  transition: transform 0.15s ease-out;
+  transition: transform 0.15s ease-out, color 0.15s ease-out;
   will-change: transform;
   display: inline-flex;
+}
+
+.social-box a:hover {
+  color: #ffffff;
 }
