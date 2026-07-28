@@ -10,11 +10,16 @@
   flex-direction: column;
   position: relative;
   bottom: -25vh;
-  border: 3px white solid;
+  border: 1px white thin;
+  z-index: 10;
 }
 
 .social-box a {
   font-size: 70px;
   color: rgba(255, 255, 255);
   top: 5px;
+  transform-origin: center;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+  display: inline-flex;
 }

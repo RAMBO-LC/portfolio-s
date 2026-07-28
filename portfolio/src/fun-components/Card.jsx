@@ -20,7 +20,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 // replace with your own imports, see the usage snippet for details
 import cardGLB from "./assets/card.glb";
-import lanyard from "./assets/lanyard.png";
+import lanyard from "./assets/lanyard (5).png";
 
 import * as THREE from "three";
 import "./Card.css";
