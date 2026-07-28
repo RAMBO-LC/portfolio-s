@@ -19,8 +19,8 @@ import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 // replace with your own imports, see the usage snippet for details
-import cardGLB from "./assets/card.glb";
-import lanyard from "./assets/lanyard (5).png";
+import cardGLB from "./assets/card_r.glb";
+import lanyard from "./assets/lanyard.png";
 
 import * as THREE from "three";
 import "./Card.css";
