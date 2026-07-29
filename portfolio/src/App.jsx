@@ -1,16 +1,8 @@
 import "./App.css";
-import Hero from "./Pages/Hero.jsx";
-import Nav from "./components/Nav.jsx";
-import Social from "./components/Social.jsx";
+import Home from "./Pages/Home.jsx";
 
 function App() {
-  return (
-    <>
-      <Nav />
-      <Social />
-      <Hero />
-    </>
-  );
+  return <Home />;
 }
 
 export default App;

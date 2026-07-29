@@ -1,4 +1,4 @@
-import "./Name.css";
+import "./Hero.css";
 import ShinyText from "../text-components/ShinyText.jsx";
 
 export default function Name() {
