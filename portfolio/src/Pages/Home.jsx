@@ -1,4 +1,4 @@
-import "../components/hero.css";
+import "../components/Home.css";
 import DotField from "../background/DotField.jsx";
 import Name from "../components/Name.jsx";
 import Card from "../fun-components/Card.jsx";
