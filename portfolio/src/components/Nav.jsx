@@ -1,4 +1,4 @@
-import "./Hero.css";
+import "./Home.css";
 
 export default function Nav() {
   return (

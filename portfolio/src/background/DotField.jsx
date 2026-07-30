@@ -80,11 +80,11 @@ export default function DotField({
   ringGap = 1.5,
   fadeIn = 0.7,
   fadeOut = 0.5,
-  followMouse = false,
+  followMouse = true,
   mouseInfluence = 0.2,
   hoverScale = 1.2,
   parallax = 0.05,
-  clickBurst = false,
+  clickBurst = true,
 }) {
   const mountRef = useRef(null);
   const propsRef = useRef(null);
@@ -190,10 +190,9 @@ export default function DotField({
 
     const onMouseMove = (e) => {
       const rect = mount.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
       mouseRef.current[0] = (e.clientX - rect.left) / rect.width - 0.5;
       mouseRef.current[1] = -((e.clientY - rect.top) / rect.height - 0.5);
-    };
-    const onMouseEnter = () => {
       isHoveredRef.current = true;
     };
     const onMouseLeave = () => {
@@ -205,10 +204,9 @@ export default function DotField({
       burstRef.current = 1;
     };
 
-    mount.addEventListener("mousemove", onMouseMove);
-    mount.addEventListener("mouseenter", onMouseEnter);
-    mount.addEventListener("mouseleave", onMouseLeave);
-    mount.addEventListener("click", onClick);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("pointerdown", onClick);
 
     let frameId;
     const animate = (t) => {
@@ -257,11 +255,12 @@ export default function DotField({
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", resize);
       ro.disconnect();
-      mount.removeEventListener("mousemove", onMouseMove);
-      mount.removeEventListener("mouseenter", onMouseEnter);
-      mount.removeEventListener("mouseleave", onMouseLeave);
-      mount.removeEventListener("click", onClick);
-      mount.removeChild(renderer.domElement);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("pointerdown", onClick);
+      if (mount && mount.contains(renderer.domElement)) {
+        mount.removeChild(renderer.domElement);
+      }
       renderer.dispose();
       material.dispose();
     };
