@@ -8,4 +8,4 @@ WITHOUT using AI; just help like 'how to do/solve/fix/implement/...
 
 30/7/26 : now for the next page
 
-3/8/26 : adding git activity box and some projects
+3/8/26 : adding git activity box and some projects.
