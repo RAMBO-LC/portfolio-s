@@ -19,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 // replace with your own imports, see the usage snippet for details
 import cardGLB from "./assets/card_r.glb";
+import lanyard from "./assets/lanyard.png";
 
 
 import * as THREE from "three";
@@ -207,6 +208,12 @@ function Band({
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
 
+  useEffect(() => {
+    if (texture) {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    }
+  }, [texture]);
+
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
@@ -260,6 +267,7 @@ function Band({
     }
   });
 
+<<<<<<< HEAD
   useEffect(() => {
     if (texture) {
       // eslint-disable-next-line react-hooks/immutability
@@ -267,6 +275,8 @@ function Band({
     }
   }, [texture]);
 
+=======
+>>>>>>> 2d20a9b (fix bug)
   return (
     <>
       <group position={[0, 4, 0]}>
