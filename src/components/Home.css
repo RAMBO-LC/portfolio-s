@@ -138,11 +138,4 @@
   transform: scale(1.25);
 }
 
-/* ==========================================================================
-   MOBILE RESPONSIVE PLACEHOLDER
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  // Mobile responsive layout tweaks to be configured separately
-}
 
