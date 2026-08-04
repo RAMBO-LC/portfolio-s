@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 "use client";
 import {
   Environment,
@@ -20,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 // replace with your own imports, see the usage snippet for details
 import cardGLB from "./assets/card_r.glb";
+
 
 
 import * as THREE from "three";
@@ -195,17 +195,24 @@ function Band({
     composite.needsUpdate = true;
     return composite;
   }, [frontImage, backImage, imageFit, frontTex, backTex, materials.base.map]);
-  const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ]),
-  );
+  const [curve] = useState(() => {
+    const c = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+    ]);
+    c.curveType = "chordal";
+    return c;
+  });
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
+
+  useEffect(() => {
+    if (texture) {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    }
+  }, [texture]);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -260,9 +267,16 @@ function Band({
     }
   });
 
-  curve.curveType = "chordal";
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+<<<<<<< HEAD
+  useEffect(() => {
+    if (texture) {
+      // eslint-disable-next-line react-hooks/immutability
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    }
+  }, [texture]);
 
+=======
+>>>>>>> 2d20a9b (fix bug)
   return (
     <>
       <group position={[0, 4, 0]}>
