@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import "./styles.css";
 
 export default function Nav() {
@@ -6,13 +5,15 @@ export default function Nav() {
     <div className="nav">
       <ul>
         <li>
-          <Link to="/">.home</Link>
+          <button onClick={() => home.scrollIntoView({ behavior: "smooth" })}>
+            .home
+          </button>
         </li>
         <li>
-          <Link to="/about">.about</Link>
+          <button to="/about">.about</button>
         </li>
         <li>
-          <Link to="/work">.work</Link>
+          <button to="/work">.work</button>
         </li>
       </ul>
     </div>

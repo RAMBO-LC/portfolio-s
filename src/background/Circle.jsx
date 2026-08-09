@@ -16,7 +16,7 @@ uniform float uTime, uAttenuation, uLineThickness;
 uniform float uBaseRadius, uRadiusStep, uScaleRate;
 uniform float uOpacity, uNoiseAmount, uRotation, uRingGap;
 uniform float uFadeIn, uFadeOut;
-uniform float uMouseInfluence, uHoverAmount, uHoverScale, uParallax, uBurst;
+uniform float uMouseInfluence, uParallax;
 uniform vec2 uResolution, uMouse;
 uniform vec3 uColor, uColorTwo;
 uniform int uRingCount;
@@ -45,8 +45,6 @@ void main() {
   float cr = cos(uRotation), sr = sin(uRotation);
   p = mat2(cr, -sr, sr, cr) * p;
   p -= uMouse * uMouseInfluence;
-  float sc = mix(1.0, uHoverScale, uHoverAmount) + uBurst * 0.3;
-  p /= sc;
   vec3 c = vec3(0.0);
   float rcf = max(float(uRingCount) - 1.0, 1.0);
   for (int i = 0; i < 10; i++) {
@@ -56,7 +54,6 @@ void main() {
     vec3 rc = mix(uColor, uColorTwo, fi / rcf);
     c = mix(c, rc, vec3(ring(pr, uBaseRadius + fi * uRadiusStep, pow(uRingGap, fi), i == 0 ? 0.0 : 2.95 * fi, px)));
   }
-  c *= 1.0 + uBurst * 2.0;
   float n = fract(sin(dot(gl_FragCoord.xy + uTime * 100.0, vec2(12.9898, 78.233))) * 43758.5453);
   c += (n - 0.5) * uNoiseAmount;
   gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)) * uOpacity);
@@ -82,17 +79,12 @@ export default function Circle({
   fadeOut = 0.5,
   followMouse = true,
   mouseInfluence = 0.2,
-  hoverScale = 1.2,
   parallax = 0.05,
-  clickBurst = true,
 }) {
   const mountRef = useRef(null);
   const propsRef = useRef(null);
   const mouseRef = useRef([0, 0]);
   const smoothMouseRef = useRef([0, 0]);
-  const hoverAmountRef = useRef(0);
-  const isHoveredRef = useRef(false);
-  const burstRef = useRef(0);
 
   useEffect(() => {
     propsRef.current = {
@@ -113,9 +105,7 @@ export default function Circle({
       fadeOut,
       followMouse,
       mouseInfluence,
-      hoverScale,
       parallax,
-      clickBurst,
     };
   });
 
@@ -161,10 +151,7 @@ export default function Circle({
       uFadeOut: { value: 0.75 },
       uMouse: { value: new THREE.Vector2() },
       uMouseInfluence: { value: 0 },
-      uHoverAmount: { value: 0 },
-      uHoverScale: { value: 1 },
       uParallax: { value: 0 },
-      uBurst: { value: 0 },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -190,25 +177,19 @@ export default function Circle({
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
 
+    // Mouse position tracking (used for parallax / mouse-follow).
     const onMouseMove = (e) => {
       const rect = mount.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       mouseRef.current[0] = (e.clientX - rect.left) / rect.width - 0.5;
       mouseRef.current[1] = -((e.clientY - rect.top) / rect.height - 0.5);
-      isHoveredRef.current = true;
     };
-    const onMouseLeave = () => {
-      isHoveredRef.current = false;
+    const onMouseLeaveWindow = () => {
       mouseRef.current[0] = 0;
       mouseRef.current[1] = 0;
     };
-    const onClick = () => {
-      burstRef.current = 1;
-    };
-
     window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseleave", onMouseLeave);
-    window.addEventListener("pointerdown", onClick);
+    window.addEventListener("mouseleave", onMouseLeaveWindow);
 
     let frameId;
     const animate = (t) => {
@@ -219,11 +200,6 @@ export default function Circle({
         (mouseRef.current[0] - smoothMouseRef.current[0]) * 0.08;
       smoothMouseRef.current[1] +=
         (mouseRef.current[1] - smoothMouseRef.current[1]) * 0.08;
-      hoverAmountRef.current +=
-        ((isHoveredRef.current ? 1 : 0) - hoverAmountRef.current) * 0.08;
-      burstRef.current *= 0.95;
-      if (burstRef.current < 0.001) burstRef.current = 0;
-
       uniforms.uTime.value = t * 0.001 * p.speed;
       uniforms.uAttenuation.value = p.attenuation;
       uniforms.uColor.value.set(p.color);
@@ -244,10 +220,7 @@ export default function Circle({
         smoothMouseRef.current[1],
       );
       uniforms.uMouseInfluence.value = p.followMouse ? p.mouseInfluence : 0;
-      uniforms.uHoverAmount.value = hoverAmountRef.current;
-      uniforms.uHoverScale.value = p.hoverScale;
       uniforms.uParallax.value = p.parallax;
-      uniforms.uBurst.value = p.clickBurst ? burstRef.current : 0;
 
       renderer.render(scene, camera);
     };
@@ -258,14 +231,14 @@ export default function Circle({
       window.removeEventListener("resize", resize);
       ro.disconnect();
       window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("pointerdown", onClick);
+      window.removeEventListener("mouseleave", onMouseLeaveWindow);
       if (mount && mount.contains(renderer.domElement)) {
         mount.removeChild(renderer.domElement);
       }
       renderer.dispose();
       material.dispose();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
