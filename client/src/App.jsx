@@ -8,8 +8,12 @@ function App() {
   return (
     <>
       <Nav />
-      <Home />
-      <About />
+      <section id="home">
+        <Home />
+      </section>
+      <section id="about">
+        <About />
+      </section>
     </>
   );
 }

@@ -10,10 +10,14 @@ export default function Nav() {
           </button>
         </li>
         <li>
-          <button to="/about">.about</button>
+          <button onClick={() => about.scrollIntoView({ behavior: "smooth" })}>
+            .about
+          </button>
         </li>
         <li>
-          <button to="/work">.work</button>
+          <button onClick={() => work.scrollIntoView({ behavior: "smooth" })}>
+            .work
+          </button>
         </li>
       </ul>
     </div>

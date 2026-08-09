@@ -44,9 +44,9 @@ export default function About() {
             <span className="im">I'm</span> <span className="name">{NAME}</span>
           </h1>
           <p>
-            Started coding a few years ago, exploring the edges of tech.
-            Building products, contributing to open source. Always curious,
-            always building.
+            Started serious frontend coding this year, exploring the edges of
+            technology. Building products, contributing to open source, and
+            constantly learning. Always curious, always building.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function About() {
             <FaGithub title="GitHub" />
             <FaDiscord title="Discord" className="c-discord" />
             <FaDocker title="Docker" className="c-docker" />
-            <FaPython title="Python" className="c-python" />
+            {/*<FaPython title="Python" className="c-python" /> */}
           </div>
         </div>
       </div>
