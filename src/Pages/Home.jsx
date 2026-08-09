@@ -4,13 +4,10 @@ import "../components/Home.css";
 import Name from "../components/Name.jsx";
 import Social from "../components/Social.jsx";
 import Card from "../fun-components/Card.jsx";
-import Nav from "../components/Nav.jsx";
 
 function Home() {
   return (
-    <>
-      <Nav />
-      <section className="hero-container">
+    <section className="hero-container">
         <ErrorBoundary>
           <Circle />
         </ErrorBoundary>
@@ -19,8 +16,7 @@ function Home() {
         <ErrorBoundary>
           <Card />
         </ErrorBoundary>
-      </section>
-    </>
+    </section>
   );
 }
 
