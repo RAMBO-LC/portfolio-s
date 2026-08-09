@@ -1,39 +1,4 @@
 /* ==========================================================================
-   HERO CONTAINER (STRUCTURAL & VIEWPORT LOCK FIX)
-   ========================================================================== */
-
-/* Outer wrapper locked strictly to 100vh viewport height without scrollbars */
-.hero-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100%;
-  overflow: hidden; /* Clips any overflow so no scrollbars appear on desktop */
-  background-color: #000000;
-}
-
-/* ==========================================================================
-   HERO NAME / LOGO TEXT
-   ========================================================================== */
-
-.hero {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  position: relative;
-  top: 380px;
-  right: 60px;
-}
-
-.name {
-  font-size: 10rem;
-  font-family: "Geist Mono", monospace;
-  font-weight: 700;
-  white-space: nowrap;
-  letter-spacing: -2px;
-}
-/* ==========================================================================
    NAVIGATION BAR
    ========================================================================== */
 
@@ -78,7 +43,6 @@
   align-items: center;
   justify-content: center;
   display: flex;
-
 
   /* Frosted Glassmorphic Pill styling preserved */
   background: rgba(97, 92, 92, 0.05);
@@ -147,5 +111,3 @@
   color: #ffffff;
   transform: scale(1.25);
 }
-
-

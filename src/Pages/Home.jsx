@@ -1,6 +1,6 @@
 import Circle from "../background/Circle.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
-import "../components/Home.css";
+import "./Home.css";
 import Name from "../components/Name.jsx";
 import Social from "../components/Social.jsx";
 import Card from "../fun-components/Card.jsx";
@@ -8,14 +8,14 @@ import Card from "../fun-components/Card.jsx";
 function Home() {
   return (
     <section className="hero-container">
-        <ErrorBoundary>
-          <Circle />
-        </ErrorBoundary>
-        <Social />
-        <Name />
-        <ErrorBoundary>
-          <Card />
-        </ErrorBoundary>
+      <ErrorBoundary>
+        <Circle />
+      </ErrorBoundary>
+      <Social />
+      <Name />
+      <ErrorBoundary>
+        <Card />
+      </ErrorBoundary>
     </section>
   );
 }
