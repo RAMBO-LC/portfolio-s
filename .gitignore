@@ -24,8 +24,3 @@ dist-ssr
 *.sw?
 
 
-
-#temporary in production;
-
-About.jsx
-About.css
