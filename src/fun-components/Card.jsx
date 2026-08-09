@@ -153,8 +153,8 @@ function Band({
   // Composite the front/back images into the card's texture atlas (front = left
   // half, back = right half). Each image is drawn aspect-preserving (no stretch).
   const cardMap = useMemo(() => {
-    const baseMap = materials?.base?.map;
-    if (!frontImage && !backImage || !baseMap) return baseMap;
+    const baseMap = materials.base.map;
+    if (!frontImage && !backImage) return baseMap;
 
     const baseImg = baseMap.image;
     if (!baseImg) return baseMap;
