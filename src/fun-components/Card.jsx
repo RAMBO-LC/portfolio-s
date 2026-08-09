@@ -15,7 +15,7 @@ import {
   useSphericalJoint,
 } from "@react-three/rapier";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 // replace with your own imports, see the usage snippet for details
 import cardGLB from "./assets/card_r.glb";
@@ -70,16 +70,18 @@ export default function Card({
         }
       >
         <ambientLight intensity={Math.PI} />
-        <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band
-            isMobile={isMobile}
-            frontImage={frontImage}
-            backImage={backImage}
-            imageFit={imageFit}
-            lanyardImage={lanyardImage}
-            lanyardWidth={lanyardWidth}
-          />
-        </Physics>
+        <Suspense fallback={null}>
+          <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+            <Band
+              isMobile={isMobile}
+              frontImage={frontImage}
+              backImage={backImage}
+              imageFit={imageFit}
+              lanyardImage={lanyardImage}
+              lanyardWidth={lanyardWidth}
+            />
+          </Physics>
+        </Suspense>
         <Environment blur={0.75}>
           <Lightformer
             intensity={2}
@@ -155,6 +157,7 @@ function Band({
     if (!frontImage && !backImage) return baseMap;
 
     const baseImg = baseMap.image;
+    if (!baseImg) return baseMap;
     const W = baseImg.width;
     const H = baseImg.height;
     const canvas = document.createElement("canvas");
@@ -184,8 +187,9 @@ function Band({
       ctx.restore();
     };
 
-    if (frontImage && frontTex.image) drawFitted(frontTex.image, FRONT_UV_RECT);
-    if (backImage && backTex.image) drawFitted(backTex.image, BACK_UV_RECT);
+    if (frontImage && frontTex?.image)
+      drawFitted(frontTex.image, FRONT_UV_RECT);
+    if (backImage && backTex?.image) drawFitted(backTex.image, BACK_UV_RECT);
 
     const composite = new THREE.CanvasTexture(canvas);
     composite.colorSpace = THREE.SRGBColorSpace;
@@ -193,7 +197,14 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontImage, backImage, imageFit, frontTex, backTex, materials.base.map]);
+  }, [
+    frontImage,
+    backImage,
+    imageFit,
+    frontTex,
+    backTex,
+    materials?.base?.map,
+  ]);
   const [curve] = useState(() => {
     const c = new THREE.CatmullRomCurve3([
       new THREE.Vector3(),
@@ -223,7 +234,7 @@ function Band({
   }, [hovered, dragged]);
 
   useFrame((state, delta) => {
-    if (dragged) {
+    if (dragged && card.current) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
@@ -234,29 +245,44 @@ function Band({
         z: vec.z - dragged.z,
       });
     }
-    if (fixed.current) {
+    if (
+      fixed.current &&
+      card.current &&
+      j1.current &&
+      j2.current &&
+      j3.current
+    ) {
       [j1, j2].forEach((ref) => {
-        if (!ref.current.lerped)
-          ref.current.lerped = new THREE.Vector3().copy(
-            ref.current.translation(),
+        if (ref.current) {
+          if (!ref.current.lerped)
+            ref.current.lerped = new THREE.Vector3().copy(
+              ref.current.translation(),
+            );
+          const clampedDistance = Math.max(
+            0.1,
+            Math.min(
+              1,
+              ref.current.lerped.distanceTo(ref.current.translation()),
+            ),
           );
-        const clampedDistance = Math.max(
-          0.1,
-          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())),
-        );
-        ref.current.lerped.lerp(
-          ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
-        );
+          ref.current.lerped.lerp(
+            ref.current.translation(),
+            delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
+          );
+        }
       });
-      curve.points[0].copy(j3.current.translation());
-      curve.points[1].copy(j2.current.lerped);
-      curve.points[2].copy(j1.current.lerped);
-      curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
-      ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      if (j3.current) curve.points[0].copy(j3.current.translation());
+      if (j2.current?.lerped) curve.points[1].copy(j2.current.lerped);
+      if (j1.current?.lerped) curve.points[2].copy(j1.current.lerped);
+      if (fixed.current) curve.points[3].copy(fixed.current.translation());
+      if (band.current?.geometry?.setPoints) {
+        band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      }
+      if (card.current) {
+        ang.copy(card.current.angvel());
+        rot.copy(card.current.rotation());
+        card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      }
     }
   });
 
@@ -307,22 +333,31 @@ function Band({
               )
             )}
           >
-            <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={cardMap}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+            {nodes?.card?.geometry && (
+              <mesh geometry={nodes.card.geometry}>
+                <meshPhysicalMaterial
+                  map={cardMap}
+                  map-anisotropy={16}
+                  clearcoat={isMobile ? 0 : 1}
+                  clearcoatRoughness={0.15}
+                  roughness={0.9}
+                  metalness={0.8}
+                />
+              </mesh>
+            )}
+            {nodes?.clip?.geometry && (
+              <mesh
+                geometry={nodes.clip.geometry}
+                material={materials?.metal}
+                material-roughness={0.3}
               />
-            </mesh>
-            <mesh
-              geometry={nodes.clip.geometry}
-              material={materials.metal}
-              material-roughness={0.3}
-            />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+            )}
+            {nodes?.clamp?.geometry && (
+              <mesh
+                geometry={nodes.clamp.geometry}
+                material={materials?.metal}
+              />
+            )}
           </group>
         </RigidBody>
       </group>
