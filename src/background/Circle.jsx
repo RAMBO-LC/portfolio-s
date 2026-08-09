@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-import "./DotField.css";
+import "./Circle.css";
 
 const vertexShader = `
 void main() {
@@ -63,7 +63,7 @@ void main() {
 }
 `;
 
-export default function DotField({
+export default function Circle({
   color = "#e9e7eb",
   colorTwo = "#797676",
   speed = 1,
@@ -130,7 +130,7 @@ export default function DotField({
       return;
     }
 
-    if (!renderer.capabilities.isWebGL2) {
+    if (renderer.capabilities.isWebGL2 === false) {
       renderer.dispose();
       return;
     }
