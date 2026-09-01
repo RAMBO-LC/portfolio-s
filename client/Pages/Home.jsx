@@ -4,7 +4,7 @@ import ErrorBoundary from "../components/ErrorBoundary.jsx";
 import "./Home.css";
 import Name from "../components/Name.jsx";
 import Social from "../components/Social.jsx";
-import Card from "../fun-components/Card.jsx";
+import Card from "../fun-components/Card/Card.jsx";
 
 function Home() {
   const nameRef = useRef(null);

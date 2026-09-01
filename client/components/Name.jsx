@@ -1,5 +1,5 @@
 import "./styles.css";
-import ShinyText from "../fun-components/ShinyText.jsx";
+import ShinyText from "../fun-components/ShineyText/ShinyText.jsx";
 
 export default function Name() {
   return (
