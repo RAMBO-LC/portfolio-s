@@ -87,7 +87,7 @@ export default function About() {
             <FaGithub title="GitHub" />
             <FaDiscord title="Discord" className="c-discord" />
             <FaDocker title="Docker" className="c-docker" />
-            <FaPython title="Python" className="c-python" />
+          
           </div>
         </div>
       </div>
