@@ -4,8 +4,7 @@ import {
   FaDocker,
   FaEdge,
   FaGithub,
-  FaNodeJs,
-  FaPython,
+  FaNodeJs
 } from "react-icons/fa";
 import "./About.css";
 
