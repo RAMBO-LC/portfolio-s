@@ -231,9 +231,7 @@
 .c-docker {
   color: #2496ed;
 }
-.c-python {
-  color: #f7b93e;
-}
+
 
 @media (max-width: 800px) {
   .bento {
