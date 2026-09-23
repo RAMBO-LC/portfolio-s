@@ -4,7 +4,8 @@ import {
   FaDocker,
   FaEdge,
   FaGithub,
-  FaNodeJs
+  FaNodeJs,
+  FaPython
 } from "react-icons/fa";
 import "./About.css";
 
@@ -86,6 +87,7 @@ export default function About() {
             <FaGithub title="GitHub" />
             <FaDiscord title="Discord" className="c-discord" />
             <FaDocker title="Docker" className="c-docker" />
+            <FaPython className=".c-python/>
           
           </div>
         </div>
