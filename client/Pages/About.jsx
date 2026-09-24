@@ -7,6 +7,7 @@ import {
   FaNodeJs
 } from "react-icons/fa";
 import "./About.css";
+import CurvedLoop from "../fun-components/TextLoop/CurvedLoop";
 
 const NAME = "Raj Ambolikar";
 
@@ -53,22 +54,14 @@ export default function About() {
           <div className="label-row">
             <p className="label">Skills I'm Learning.</p>
           </div>
-          <ul>
-            <li>Full Stack Developer</li>
-            <li>Blockchain Engineer</li>
-            <li>AI/ML Enthusiast</li>
-            <li>Technical Blogger</li>
-          </ul>
+          <CurvedLoop text="ReactJS • ExpressJS • MongoDB • FastAPI • TailwindCSS • Git & GitHub • "
+            speed={90}
+            className="tech-text"
+            curviness={90}
+            direction="forward"
+          />
         </div>
 
-        <div className="card clock">
-          <div className="time">
-            <span>
-              {String(hours).padStart(2, "0")}:{minutes}
-            </span>
-            <span className="ampm">{ampm}</span>
-          </div>
-        </div>
 
         <div className="card lore">
           <p className="label">Lore.</p>

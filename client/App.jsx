@@ -1,4 +1,3 @@
-import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./Pages/Home.jsx";
 import About from "./Pages/About.jsx";
@@ -10,9 +9,17 @@ function App() {
   return (
     <>
       <Nav />
-      <Home />
-      <About />
-      <Work />
+      <main>
+        <section id="home">
+          <Home />
+        </section>
+        <section id="about">
+          <About />
+        </section>
+        <section id="work">
+          <Work />
+        </section>
+      </main>
     </>
   );
 }

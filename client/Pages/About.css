@@ -45,6 +45,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 28px 30px;
+
 }
 
 .label {
@@ -131,6 +132,8 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 220px;
+  min-width: 30px
+  
 }
 .skills .label-row {
   display: flex;
