@@ -1,18 +1,21 @@
-import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./Pages/Home.jsx";
 import About from "./Pages/About.jsx";
 import Work from "./Pages/Work.jsx";
 
 import Nav from "./components/Nav.jsx";
+import ClickSpark from "./fun-components/Click/ClickSpark.jsx";
 
 function App() {
   return (
     <>
-      <Nav />
-      <Home />
-      <About />
-      <Work />
+      <ClickSpark>
+        <Nav />
+        <Home /><About />
+        <Work />
+      </ClickSpark>
+
+
     </>
   );
 }

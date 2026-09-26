@@ -6,3 +6,9 @@ body {
   min-height: 100vh;
   scroll-behavior: smooth;
 }
+
+#home,
+#about,
+#work {
+  scroll-margin-top: 80px;
+}

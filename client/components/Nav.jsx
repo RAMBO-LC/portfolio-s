@@ -1,21 +1,32 @@
 import "./styles.css";
 
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 export default function Nav() {
   return (
-    <div className="nav">
+    <nav className="nav" aria-label="Main navigation">
       <ul>
         <li>
-          <button onClick={() => home.scrollIntoView({ behavior: "smooth" })}>
+          <button type="button" onClick={() => scrollToSection("home")}>
             .home
           </button>
         </li>
         <li>
-          <button to="/about">.about</button>
+          <button type="button" onClick={() => scrollToSection("about")}>
+            .about
+          </button>
         </li>
         <li>
-          <button to="/work">.work</button>
+          <button type="button" onClick={() => scrollToSection("work")}>
+            .work
+          </button>
         </li>
       </ul>
-    </div>
+    </nav>
   );
 }

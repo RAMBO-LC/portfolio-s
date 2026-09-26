@@ -1,0 +1,157 @@
+/* LogoLoop.css */
+
+.logoloop {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.logoloop__track {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  will-change: transform;
+}
+
+.logoloop--vertical {
+  height: 100%;
+}
+
+.logoloop--vertical .logoloop__track {
+  flex-direction: column;
+  width: 100%;
+  height: max-content;
+}
+
+/* Each "copy" of the full logo set.
+   NOTE: trailing padding == gap is required for a seamless loop.
+   The track has no gap, so without this the last logo of one copy
+   would touch the first logo of the next copy. Padding (not margin /
+   track-gap) is used because seq width is measured with
+   getBoundingClientRect, which includes padding. */
+.logoloop__list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--logoloop-gap, 32px);
+  padding-right: var(--logoloop-gap, 32px);
+  list-style: none;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+}
+
+.logoloop--vertical .logoloop__list {
+  flex-direction: column;
+  align-items: center;
+  padding-right: 0;
+  padding-bottom: var(--logoloop-gap, 32px);
+  padding-left: 0;
+  padding-top: 0;
+}
+
+.logoloop__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: var(--logoloop-logoHeight, 28px);
+  transition: transform 0.2s ease;
+}
+
+.logoloop--scale-hover .logoloop__item:hover {
+  transform: scale(1.15);
+}
+
+.logoloop__item img {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+}
+
+.logoloop__node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: var(--logoloop-logoHeight, 28px);
+  line-height: 1;
+}
+
+.logoloop__node svg {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  display: block;
+}
+
+.logoloop__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Fade-out edges */
+.logoloop--fade::before,
+.logoloop--fade::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.logoloop--fade::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--logoloop-fadeColor, #0a0a0a) 0%,
+    transparent 100%
+  );
+}
+
+.logoloop--fade::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--logoloop-fadeColor, #0a0a0a) 0%,
+    transparent 100%
+  );
+}
+
+.logoloop--vertical.logoloop--fade::before {
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: auto;
+  height: 80px;
+  width: auto;
+  background: linear-gradient(
+    to bottom,
+    var(--logoloop-fadeColor, #0a0a0a) 0%,
+    transparent 100%
+  );
+}
+
+.logoloop--vertical.logoloop--fade::after {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 0;
+  height: 80px;
+  width: auto;
+  background: linear-gradient(
+    to top,
+    var(--logoloop-fadeColor, #0a0a0a) 0%,
+    transparent 100%
+  );
+}

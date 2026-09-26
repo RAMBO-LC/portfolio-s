@@ -45,7 +45,7 @@
   -webkit-backdrop-filter: blur(12px);
   border: 3px solid rgba(224, 210, 210, 0.12);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s ease;
 }
 
@@ -68,7 +68,7 @@ button {
   border: none;
   background-color: transparent;
   color: white;
-  cursor: pointer;
+  cursor: default;
   font-family: "Geist Mono", monospace;
   font-size: 34px;
 }
