@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "cd client && npx vite",
-    "build": "vite build",
+    "build": "vite build client --outDir ../dist --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview"
   },
