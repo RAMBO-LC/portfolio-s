@@ -5,6 +5,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero-fallback {
+  position: absolute;
+  inset: 0;
+  background: #000;
 }
 
 .hero {
@@ -13,6 +21,8 @@
   align-items: center;
   color: white;
   position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .name {

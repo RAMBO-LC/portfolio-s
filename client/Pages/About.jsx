@@ -48,54 +48,92 @@ function shuffleArray(array) {
   return arr;
 }
 
-const c_STACK_LOGOS = [
-  imgLogo(`${DEVICON_BASE}/nodejs/nodejs-original.svg`, "Node.js"),
-  darkLogo(`${DEVICON_BASE}/github/github-original.svg`, "GitHub"),
-  // Brand-blue Discord (react-icons simple-icons glyph, #5865F2) rendered
-  // as a `node` so no invert filter touches it.
-  { node: <SiDiscord color="#5865F2" size={40} title="Discord" />, title: "Discord", ariaLabel: "Discord" },
-  imgLogo(`${DEVICON_BASE}/typescript/typescript-original.svg`, "TypeScript"),
-  imgLogo(`${DEVICON_BASE}/python/python-original.svg`, "Python"),
-  imgLogo(`${DEVICON_BASE}/javascript/javascript-original.svg`, "JavaScript"),
-  imgLogo(`${DEVICON_BASE}/react/react-original.svg`, "React"),
-  darkLogo(`${DEVICON_BASE}/vercel/vercel-original.svg`, "Vercel"),
-  imgLogo(`${DEVICON_BASE}/docker/docker-original.svg`, "Docker"),
-  darkLogo(`${DEVICON_BASE}/apple/apple-original.svg`, "macOS"),
-  imgLogo(`${DEVICON_BASE}/linux/linux-original.svg`, "Linux"),
-  imgLogo(`${DEVICON_BASE}/windows11/windows11-original.svg`, "Windows"),
-  imgLogo(`${DEVICON_BASE}/git/git-original.svg`, "Git"),
-
-  { node: <ZedLogo height={44} />, title: "Zed", ariaLabel: "Zed" },
-
-  imgLogo(`${DEVICON_BASE}/figma/figma-original.svg`, "Figma"),
-
-
+const c_STACK_GROUPS = [
+  // Languages stay together: JS / TS / Python
+  [
+    imgLogo(`${DEVICON_BASE}/javascript/javascript-original.svg`, "JavaScript"),
+    imgLogo(`${DEVICON_BASE}/typescript/typescript-original.svg`, "TypeScript"),
+    imgLogo(`${DEVICON_BASE}/python/python-original.svg`, "Python"),
+  ],
+  // Frontend
+  [
+    imgLogo(`${DEVICON_BASE}/react/react-original.svg`, "React"),
+  ],
+  // Backend runtime
+  [
+    imgLogo(`${DEVICON_BASE}/nodejs/nodejs-original.svg`, "Node.js"),
+  ],
+  // Version control stays together
+  [
+    imgLogo(`${DEVICON_BASE}/git/git-original.svg`, "Git"),
+    darkLogo(`${DEVICON_BASE}/github/github-original.svg`, "GitHub"),
+  ],
+  // Deploy / containers stay together
+  [
+    imgLogo(`${DEVICON_BASE}/docker/docker-original.svg`, "Docker"),
+    darkLogo(`${DEVICON_BASE}/vercel/vercel-original.svg`, "Vercel"),
+  ],
+  // Operating systems stay together
+  [
+    darkLogo(`${DEVICON_BASE}/apple/apple-original.svg`, "macOS"),
+    imgLogo(`${DEVICON_BASE}/linux/linux-original.svg`, "Linux"),
+    imgLogo(`${DEVICON_BASE}/windows11/windows11-original.svg`, "Windows"),
+  ],
+  // Tools / comms stay together
+  [
+    { node: <ZedLogo height={44} />, title: "Zed", ariaLabel: "Zed" },
+    imgLogo(`${DEVICON_BASE}/figma/figma-original.svg`, "Figma"),
+    // Brand-blue Discord (react-icons simple-icons glyph, #5865F2) rendered
+    // as a `node` so no invert filter touches it.
+    { node: <SiDiscord color="#5865F2" size={40} title="Discord" />, title: "Discord", ariaLabel: "Discord" },
+  ],
 ];
 
-const l_STACK_LOGOS = [
-  imgLogo(`${DEVICON_BASE}/tailwindcss/tailwindcss-original.svg`, "Tailwind CSS"),
-  imgLogo(`${DEVICON_BASE}/postgresql/postgresql-original.svg`, "PostgreSQL"),
-  imgLogo(`${DEVICON_BASE}/mongodb/mongodb-original.svg`, "MongoDB"),
-  imgLogo(`${DEVICON_BASE}/redis/redis-original.svg`, "Redis"),
-  imgLogo(`${DEVICON_BASE}/vim/vim-original.svg`, "Vim"),
-  imgLogo(`${DEVICON_BASE}/kubernetes/kubernetes-plain.svg`, "Kubernetes"),
-  imgLogo(`${DEVICON_BASE}/amazonwebservices/amazonwebservices-plain-wordmark.svg`, "AWS"),
-  imgLogo(`${DEVICON_BASE}/graphql/graphql-plain.svg`, "GraphQL"),
+const l_STACK_GROUPS = [
+  // Databases stay together
+  [
+    imgLogo(`${DEVICON_BASE}/postgresql/postgresql-original.svg`, "PostgreSQL"),
+    imgLogo(`${DEVICON_BASE}/mongodb/mongodb-original.svg`, "MongoDB"),
+    imgLogo(`${DEVICON_BASE}/redis/redis-original.svg`, "Redis"),
+  ],
+  // Cloud / orchestration stays together
+  [
+    imgLogo(`${DEVICON_BASE}/kubernetes/kubernetes-plain.svg`, "Kubernetes"),
+    imgLogo(`${DEVICON_BASE}/amazonwebservices/amazonwebservices-plain-wordmark.svg`, "AWS"),
+  ],
+  // Styling
+  [
+    imgLogo(`${DEVICON_BASE}/tailwindcss/tailwindcss-original.svg`, "Tailwind CSS"),
+  ],
+  // API
+  [
+    imgLogo(`${DEVICON_BASE}/graphql/graphql-plain.svg`, "GraphQL"),
+  ],
+  // Editor
+  [
+    imgLogo(`${DEVICON_BASE}/vim/vim-original.svg`, "Vim"),
+  ],
 ];
+
+// Shuffle whole categories, then flatten — related logos never fragment,
+// only the category order is randomised.
+function shuffleGrouped(groups) {
+  return shuffleArray(groups).flat();
+}
 
 export default function About() {
-  // Random order on mount, then re-shuffled every RESHUFFLE_MS.
+  // Grouped shuffle on mount, then re-shuffled every RESHUFFLE_MS.
   // Safe mid-animation: a reshuffle is a permutation of the same items,
   // so the total sequence width (and the loop offset math) is unchanged —
-  // logos just swap places while the marquee keeps scrolling.
-  const [shuffledLearning, setShuffledLearning] = useState(() => shuffleArray(l_STACK_LOGOS));
-  const [shuffledStack, setShuffledStack] = useState(() => shuffleArray(c_STACK_LOGOS));
+  // categories just swap places while the marquee keeps scrolling.
+  const [shuffledLearning, setShuffledLearning] = useState(() => shuffleGrouped(l_STACK_GROUPS));
+  const [shuffledStack, setShuffledStack] = useState(() => shuffleGrouped(c_STACK_GROUPS));
 
   useEffect(() => {
     const RESHUFFLE_MS = 8000;
     const id = setInterval(() => {
-      setShuffledLearning(shuffleArray(l_STACK_LOGOS));
-      setShuffledStack(shuffleArray(c_STACK_LOGOS));
+      setShuffledLearning(shuffleGrouped(l_STACK_GROUPS));
+      setShuffledStack(shuffleGrouped(c_STACK_GROUPS));
     }, RESHUFFLE_MS);
     return () => clearInterval(id);
   }, []);
