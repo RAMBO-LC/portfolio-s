@@ -7,16 +7,16 @@ import { SiDiscord } from "react-icons/si";
 
 const DEVICON_BASE = "https://cdn.jsdelivr.net/npm/devicon@2.16.0/icons";
 
-import { Zed } from '@thesvg/react';
+import { Zed } from "@thesvg/react";
 
 // Zed is an SVG component, so it must be passed as a `node` logo item —
 // not called raw into the array (a raw element has neither `src` nor
 // `node`, so LogoLoop would render a broken <img src={undefined}>).
 function ZedLogo({ height = 44 } = {}) {
-  return <Zed variant="light" style={{ height, width: 'auto', display: 'block' }} />;
+  return (
+    <Zed variant="light" style={{ height, width: "auto", display: "block" }} />
+  );
 }
-
-
 
 // Dark monochrome logos are invisible on the #0a0a0a cards, so render them
 // as `node` items with an invert filter (see .logo-invert in About.css).
@@ -49,20 +49,18 @@ function shuffleArray(array) {
 }
 
 const c_STACK_GROUPS = [
-  // Languages stay together: JS / TS / Python
+  // Notes
   [
-    imgLogo(`${DEVICON_BASE}/javascript/javascript-original.svg`, "JavaScript"),
-    imgLogo(`${DEVICON_BASE}/typescript/typescript-original.svg`, "TypeScript"),
-    imgLogo(`${DEVICON_BASE}/python/python-original.svg`, "Python"),
+    imgLogo(
+      "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/obsidian.svg",
+      "Obsidian",
+    ),
   ],
+
   // Frontend
-  [
-    imgLogo(`${DEVICON_BASE}/react/react-original.svg`, "React"),
-  ],
+  [imgLogo(`${DEVICON_BASE}/react/react-original.svg`, "React")],
   // Backend runtime
-  [
-    imgLogo(`${DEVICON_BASE}/nodejs/nodejs-original.svg`, "Node.js"),
-  ],
+  [imgLogo(`${DEVICON_BASE}/nodejs/nodejs-original.svg`, "Node.js")],
   // Version control stays together
   [
     imgLogo(`${DEVICON_BASE}/git/git-original.svg`, "Git"),
@@ -85,12 +83,22 @@ const c_STACK_GROUPS = [
     imgLogo(`${DEVICON_BASE}/figma/figma-original.svg`, "Figma"),
     // Brand-blue Discord (react-icons simple-icons glyph, #5865F2) rendered
     // as a `node` so no invert filter touches it.
-    { node: <SiDiscord color="#5865F2" size={40} title="Discord" />, title: "Discord", ariaLabel: "Discord" },
+    {
+      node: <SiDiscord color="#5865F2" size={40} title="Discord" />,
+      title: "Discord",
+      ariaLabel: "Discord",
+    },
   ],
 ];
 
 const l_STACK_GROUPS = [
-  // Databases stay together
+  // Languages stay together
+  [
+    imgLogo(`${DEVICON_BASE}/javascript/javascript-original.svg`, "JavaScript"),
+    imgLogo(`${DEVICON_BASE}/typescript/typescript-original.svg`, "TypeScript"),
+    imgLogo(`${DEVICON_BASE}/python/python-original.svg`, "Python"),
+  ],
+  //  databases
   [
     imgLogo(`${DEVICON_BASE}/postgresql/postgresql-original.svg`, "PostgreSQL"),
     imgLogo(`${DEVICON_BASE}/mongodb/mongodb-original.svg`, "MongoDB"),
@@ -99,20 +107,22 @@ const l_STACK_GROUPS = [
   // Cloud / orchestration stays together
   [
     imgLogo(`${DEVICON_BASE}/kubernetes/kubernetes-plain.svg`, "Kubernetes"),
-    imgLogo(`${DEVICON_BASE}/amazonwebservices/amazonwebservices-plain-wordmark.svg`, "AWS"),
+    imgLogo(
+      `${DEVICON_BASE}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
+      "AWS",
+    ),
   ],
   // Styling
   [
-    imgLogo(`${DEVICON_BASE}/tailwindcss/tailwindcss-original.svg`, "Tailwind CSS"),
+    imgLogo(
+      `${DEVICON_BASE}/tailwindcss/tailwindcss-original.svg`,
+      "Tailwind CSS",
+    ),
   ],
   // API
-  [
-    imgLogo(`${DEVICON_BASE}/graphql/graphql-plain.svg`, "GraphQL"),
-  ],
+  [imgLogo(`${DEVICON_BASE}/graphql/graphql-plain.svg`, "GraphQL")],
   // Editor
-  [
-    imgLogo(`${DEVICON_BASE}/vim/vim-original.svg`, "Vim"),
-  ],
+  [imgLogo(`${DEVICON_BASE}/vim/vim-original.svg`, "Vim")],
 ];
 
 // Shuffle whole categories, then flatten — related logos never fragment,
@@ -126,8 +136,12 @@ export default function About() {
   // Safe mid-animation: a reshuffle is a permutation of the same items,
   // so the total sequence width (and the loop offset math) is unchanged —
   // categories just swap places while the marquee keeps scrolling.
-  const [shuffledLearning, setShuffledLearning] = useState(() => shuffleGrouped(l_STACK_GROUPS));
-  const [shuffledStack, setShuffledStack] = useState(() => shuffleGrouped(c_STACK_GROUPS));
+  const [shuffledLearning, setShuffledLearning] = useState(() =>
+    shuffleGrouped(l_STACK_GROUPS),
+  );
+  const [shuffledStack, setShuffledStack] = useState(() =>
+    shuffleGrouped(c_STACK_GROUPS),
+  );
 
   useEffect(() => {
     const RESHUFFLE_MS = 8000;
@@ -150,10 +164,9 @@ export default function About() {
             </span>
           </h1>
           <p>
-            I build web apps with JavaScript, TypeScript, and Python —React up front, Node behind it.
-            Currently digging into backend
-            systems — Postgres, Redis, AWS — and working toward open-source
-            contributions.
+            I build web apps with JavaScript, TypeScript, and Python —React up
+            front, Node behind it. Currently digging into backend systems —
+            Postgres, Redis, AWS — and working toward open-source contributions.
           </p>
         </div>
 
@@ -174,8 +187,7 @@ export default function About() {
         <div className="card lore">
           <p className="label">Lore.</p>
           <p>
-            Known as <b>Rambo4code</b> — the handle I've carried since day
-            one.
+            Known as <b>Rambo4code</b> — the handle I've carried since day one.
           </p>
         </div>
 
