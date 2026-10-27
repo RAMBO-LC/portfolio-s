@@ -164,7 +164,7 @@ export default function About() {
             </span>
           </h1>
           <p>
-            I build web apps with JavaScript, TypeScript, and Python —React up
+            I build web apps with JavaScript, TypeScript, and Python — React up
             front, Node behind it. Currently digging into backend systems —
             Postgres, Redis, AWS — and working toward open-source contributions.
           </p>
