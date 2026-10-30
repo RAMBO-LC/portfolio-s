@@ -7,7 +7,7 @@ import Social from "../components/Social.jsx";
 // Heavy three.js scenes: lazy-load so the initial bundle stays small.
 // They render below/around hero content and pop in when ready.
 const Circle = lazy(() => import("../background/Circle.jsx"));
-/onst Card = lazy(() => import("../fun-components/Card/Card.jsx"));
+const Card = lazy(() => import("../fun-components/Card/Card.jsx"));
 
 function Home() {
   return (
