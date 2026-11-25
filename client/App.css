@@ -1,0 +1,15 @@
+body {
+  background-color: black;
+  margin: 0;
+  overflow-x: hidden;
+  width: 100vw;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  user-select: none;
+}
+
+#home,
+#about,
+#work {
+  scroll-margin-top: 80px;
+}
