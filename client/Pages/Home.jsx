@@ -21,7 +21,7 @@ function Home() {
       <Name />
       <ErrorBoundary>
         <Suspense fallback={<div className="hero-fallback" aria-hidden="true" />}>
-          <Card />
+          {/* <Card /> */}
         </Suspense>
       </ErrorBoundary>
     </section>
