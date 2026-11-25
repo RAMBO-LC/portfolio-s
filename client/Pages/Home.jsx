@@ -7,21 +7,23 @@ import Social from "../components/Social.jsx";
 // Heavy three.js scenes: lazy-load so the initial bundle stays small.
 // They render below/around hero content and pop in when ready.
 const Circle = lazy(() => import("../background/Circle.jsx"));
-// const Card = lazy(() => import("../fun-components/Card/Card.jsx"));
+const Card = lazy(() => import("../fun-components/Card/Card.jsx"));
 
 function Home() {
   return (
     <section id="home" className="hero-container">
-      {/* <ErrorBoundary> */}
+      <ErrorBoundary>
+        <Suspense fallback={<div className="hero-fallback" aria-hidden="true" />}>
           <Circle />
-      {/* </ErrorBoundary> */}
+        </Suspense>
+      </ErrorBoundary>
       <Social />
       <Name />
-      {/* <ErrorBoundary>
+      <ErrorBoundary>
         <Suspense fallback={<div className="hero-fallback" aria-hidden="true" />}>
-           <Card />  
+          <Card />
         </Suspense>
-      </ErrorBoundary> */}
+      </ErrorBoundary>
     </section>
   );
 }

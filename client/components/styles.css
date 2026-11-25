@@ -1,12 +1,11 @@
 .nav {
   position: relative;
   top: 25px;
-  right: 10px;
   width: 100%;
   z-index: 100;
   display: flex;
-  justify-content: space-between;
-
+  justify-content: center;
+  pointer-events: auto;
 }
 
 .nav ul {
@@ -18,18 +17,12 @@
   height: 40px;
   color: white;
 
-  position: relative;
+  position: fixed;
   top: 10px;
-  left: 30px;
-  width: 100%;
+  left: 20px;
   gap: 30%;
-  padding: auto;
+  padding: 0;
   align-items: center;
-}
-
-li button .workNav{
-  position: relative;
-  right: 200px;
 }
 
 .nav li {
@@ -121,7 +114,6 @@ button {
   color: #ffffff;
   transform: scale(1.25);
 }
-
 @media (max-width: 800px), (max-width: 960px) and (max-height: 500px) {
   .nav {
     position: absolute;
@@ -150,10 +142,6 @@ button {
     width: 100%;
     min-height: 44px;
     font-size: clamp(1rem, 4.5vw, 1.4rem);
-  }
-
-  .nav .workNav {
-    width: 100%;
   }
 
   .social-box {

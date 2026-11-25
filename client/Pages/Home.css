@@ -37,7 +37,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
 @media (max-width: 800px), (max-width: 960px) and (max-height: 500px) {
   .hero-container {
     height: 100svh;

@@ -22,11 +22,9 @@ export default function Nav() {
           </button>
         </li>
         <li>
-          <div className="workNav">
-            <button type="button" onClick={() => scrollToSection("work")}>
-              .work
-            </button>
-          </div>
+          <button type="button" onClick={() => scrollToSection("work")}>
+            .work
+          </button>
         </li>
       </ul>
     </nav>
